@@ -12,11 +12,16 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
+    public Text HighScoreText;
     
     private bool m_Started = false;
     private int m_Points;
     
     private bool m_GameOver = false;
+
+    public string PlayerName;
+    public string HighScorerName;
+    public int HighScore;
 
     
     // Start is called before the first frame update
@@ -36,6 +41,12 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        MenuManager.Instance.LoadHighScore();
+        PlayerName = MenuManager.Instance.PlayerName;
+        HighScore = MenuManager.Instance.HighScore;
+        HighScorerName = MenuManager.Instance.HighScorerName;
+        HighScoreText.text = $"Best Score: {HighScore} by: {HighScorerName}";
     }
 
     private void Update()
@@ -70,7 +81,23 @@ public class MainManager : MonoBehaviour
 
     public void GameOver()
     {
+        if (m_Points > HighScore) {
+            MenuManager.Instance.InsertIntoLeaderboard(m_Points);
+
+            MenuManager.Instance.HighScore = m_Points;
+            MenuManager.Instance.HighScorerName = PlayerName;
+
+            MenuManager.Instance.SaveHighScore();
+            HighScoreText.text = $"Best Score: {m_Points} by: {PlayerName}";
+        } else if (m_Points > MenuManager.Instance.LeaderboardScores[9]) {
+            MenuManager.Instance.InsertIntoLeaderboard(m_Points);
+            MenuManager.Instance.SaveHighScore();
+        }
         m_GameOver = true;
         GameOverText.SetActive(true);
     }
+
+    
+
+    
 }
